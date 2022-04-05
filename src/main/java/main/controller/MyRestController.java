@@ -1,12 +1,10 @@
 package main.controller;
 
 import main.entity.User;
+import main.exception_handling.NoSuchUserException;
 import main.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -24,6 +22,32 @@ public class MyRestController {
 
     @GetMapping("/users/{id}")
     public User getUser(@PathVariable int id) {
-        return userService.getUser(id);
+        User user = userService.getUser(id);
+        if (user == null) {
+            throw new NoSuchUserException("Пользователь с id = " + id + " не найден в базе данных.");
+        }
+        return user;
+    }
+
+    @PostMapping("/users")
+    public User addUser(@RequestBody User user) {
+        userService.saveUser(user);
+        return user;
+    }
+
+    @PutMapping("users")
+    public User updateUser(@RequestBody User user) {
+        userService.saveUser(user);
+        return user;
+    }
+
+    @DeleteMapping("/users/{id}")
+    public String deleteUser(@PathVariable int id) {
+        User user = userService.getUser(id);
+        if (user == null) {
+            throw new NoSuchUserException("Пользователь с id = " + id + " не найден в базе данных.");
+        }
+        userService.deleteUser(id);
+        return "Пользователь с id " + id + " был удален.";
     }
 }
